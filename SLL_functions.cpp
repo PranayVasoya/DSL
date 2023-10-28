@@ -1,250 +1,243 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Node structure
-struct Node {
+struct node {
     int data;
-    struct Node* next;
+    struct node* next;
 };
 
-// Function to create a new node
-struct Node* createNode(int data) {
-    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
-    newNode->data = data;
-    newNode->next = NULL;
-    return newNode;
+struct node* create(int data) {
+    struct node* newnode = (struct node*)malloc(sizeof(struct node));
+    newnode->data = data;
+    newnode->next = NULL;
+    return newnode;
 }
 
-// Function to add a node at the beginning of the linked list
-void addToBeginning(struct Node** head, int data) {
-    struct Node* newNode = createNode(data);
-    newNode->next = *head;
-    *head = newNode;
-}
-
-// Function to add a node at the end of the linked list
-void addToEnd(struct Node** head, int data) {
-    struct Node* newNode = createNode(data);
-    if (*head == NULL) {
-        *head = newNode;
-        return;
+struct node* createlist(int n) {
+    struct node* head = NULL;
+    struct node* temp = NULL;
+    for (int i = 1; i <= n; i++) {
+        int data;
+        printf("Enter data: ");
+        scanf("%d", &data);
+        struct node* newnode = create(data);
+        if (head == NULL) {
+            head = newnode;
+            temp = newnode;
+        } else {
+            temp->next = newnode;
+            temp = newnode;
+        }
     }
-    struct Node* temp = *head;
-    while (temp->next != NULL) {
-        temp = temp->next;
-    }
-    temp->next = newNode;
+    return head;
 }
 
-
-
-// Function to delete the first node
-void deleteFirstNode(struct Node** head) {
-    if (*head == NULL) {
-        printf("List is already empty.\n");
-        return;
+struct node* deletefirst(struct node* head) {
+    if (head == NULL) {
+        printf("EMPTY");
+    } else {
+        struct node* newhead = head->next;
+        free(head);
+        return newhead;
     }
-    struct Node* temp = *head;
-    *head = (*head)->next;
-    free(temp);
 }
 
-// Function to delete the last node
-void deleteLastNode(struct Node** head) {
+void deletelast(struct node** head) {
     if (*head == NULL) {
-        printf("List is already empty.\n");
-        return;
+        printf("EMPTY");
     }
     if ((*head)->next == NULL) {
         free(*head);
         *head = NULL;
         return;
     }
-    struct Node* temp = *head;
-    while (temp->next->next != NULL) {
+    struct node* temp = *head;
+    struct node* prev = NULL;
+    while (temp->next != NULL) {
+        prev = temp;
         temp = temp->next;
     }
-    free(temp->next);
-    temp->next = NULL;
+    prev->next = NULL;
+    free(temp);
 }
 
+void deletenth(struct node** head, int n) {
+    if (*head == NULL) {
+        printf("EMPTY");
+    }
+    if (n == 1) {
+        struct node* temp = *head;
+        *head = (*head)->next;
+        free(temp);
+    }
+    struct node* current = *head;
+    struct node* prev = NULL;
+    int count = 1;
+    while (current != NULL && count < n) {
+        prev = current;
+        current = current->next;
+        count++;
+    }
+    if (current == NULL) {
+        printf("NODE DOESN'T EXIST");
+    } else {
+        prev->next = current->next;
+        free(current);
+    }
+}
 
+void addfirst(struct node** head, int data) {
+    struct node* newnode = create(data);
+    newnode->next = *head;
+    *head = newnode;
+}
 
-// Function to merge two linked lists
-struct Node* concatenateLists(struct Node* list1, struct Node* list2) {
+void addlast(struct node** head, int data) {
+    struct node* newnode = create(data);
+    if (*head == NULL) {
+        *head = newnode;
+    } else {
+        struct node* temp = *head;
+        while (temp->next != NULL) {
+            temp = temp->next;
+        }
+        temp->next = newnode;
+    }
+}
+
+void addnth(struct node** head, int data, int n) {
+    struct node* newnode = create(data);
+    if (n == 1) {
+        newnode->next = *head;
+        *head = newnode;
+    } else {
+        struct node* temp = *head;
+        struct node* prev = NULL;
+        int count = 1;
+        while (temp != NULL && count < n) {
+            prev = temp;
+            temp = temp->next;
+            count++;
+        }
+        if (count == n) {
+            prev->next = newnode;
+            newnode->next = temp;
+        } else {
+            printf("Invalid position\n");
+        }
+    }
+}
+
+struct node* mergelists(struct node* list1, struct node* list2) {
     if (list1 == NULL) {
         return list2;
     }
     if (list2 == NULL) {
         return list1;
     }
-    struct Node* concatenateList = NULL;
+    struct node* mergelist = NULL;
     if (list1->data < list2->data) {
-        concatenateList = list1;
-        concatenateList->next = concatenateLists(list1->next, list2);
+        mergelist = list1;
+        mergelist->next = mergelists(list1->next, list2);
     } else {
-        concatenateList = list2;
-        concatenateList->next = concatenateLists(list1, list2->next);
+        mergelist = list2;
+        mergelist->next = mergelists(list1, list2->next);
     }
-    return concatenateList;
+    return mergelist;
 }
 
-// Function to print the linked list
-void printList(struct Node* head) {
-    struct Node* temp = head;
+void reverse(struct node** head) {
+    struct node* prevnode = NULL;
+    struct node* currentnode = *head;
+    struct node* nextnode = NULL;
+    while (currentnode != NULL) {
+        nextnode = currentnode->next;
+        currentnode->next = prevnode;
+        prevnode = currentnode;
+        currentnode = nextnode;
+    }
+    *head = prevnode;
+}
+
+void display(struct node* head) {
+    struct node* temp = head;
     while (temp != NULL) {
-        printf("%d -> ", temp->data);
+        printf("%d->", temp->data);
         temp = temp->next;
     }
     printf("NULL\n");
 }
 
-
-
-// Function to reverse a linked list
-void reverseList(struct Node** head) {
-    struct Node* prevNode = NULL;
-    struct Node* currentNode = *head;
-    struct Node* nextNode = NULL;
-
-    while (currentNode != NULL) {
-        nextNode = currentNode->next; // Store the next node
-        currentNode->next = prevNode; // Change next of temp node
-        prevNode = currentNode;       // Move prev to the temp node
-        currentNode = nextNode;       // Move temp to the next node
-    }
-
-    *head = prevNode; // Update the head to the last node (new start of the list)
-}
-
-// Prints the operations menu
-void printMenu() {
-    printf("\nSingle Linked List Operations:\n");
-    printf("1. Add Node to List 1 (Beginning)\n");
-    printf("2. Add Node to List 1 (End)\n");
-    printf("3. Delete First Node from List 1\n");
-    printf("4. Delete Last Node from List 1\n");
-    printf("5. Reverse List 1\n");
-    printf("6. Print List 1\n");
-    printf("7. Add Node to List 2 (Beginning)\n");
-    printf("8. Add Node to List 2 (End)\n");
-    printf("9. Delete First Node from List 2\n");
-    printf("10. Delete Last Node from List 2\n");
-    printf("11. Reverse List 2\n");
-    printf("12. Print List 2\n");
-    printf("13. concatenate Lists\n");
-    printf("14. Add Node to Merged List (Beginning)\n");
-    printf("15. Add Node to Merged List (End)\n");
-    printf("16. Delete First Node from Merged List\n");
-    printf("17. Delete Last Node from Merged List\n");
-    printf("18. Reverse Merged List\n");
-    printf("19. Print Merged List\n");
-    printf("20. Exit\n");
-}
-
 int main() {
-    struct Node* list1 = NULL;
-    struct Node* list2 = NULL;
-    struct Node* concatenateList = NULL;
-
-    int choice, data, n;
+    struct node* head = NULL;
+    int choice, n, data, pos;
 
     while (1) {
-        printMenu();
+        printf("\nMenu:\n");
+        printf("1. Create a list\n");
+        printf("2. Delete first\n");
+        printf("3. Delete last\n");
+        printf("4. Delete nth\n");
+        printf("5. Add first\n");
+        printf("6. Add last\n");
+        printf("7. Add nth\n");
+        printf("8. Merge lists\n");
+        printf("9. Reverse list\n");
+        printf("10. Display list\n");
+        printf("11. Exit\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);
 
         switch (choice) {
             case 1:
-                printf("Enter data: ");
-                scanf("%d", &data);
-                addToBeginning(&list1, data);
+                printf("Enter the number of nodes: ");
+                scanf("%d", &n);
+                head = createlist(n);
                 break;
             case 2:
-                printf("Enter data: ");
-                scanf("%d", &data);
-                addToEnd(&list1, data);
+                head = deletefirst(head);
                 break;
             case 3:
-                deleteFirstNode(&list1);
-                printf("First node deleted from List 1.\n");
+                deletelast(&head);
                 break;
             case 4:
-                deleteLastNode(&list1);
-                printf("Last node deleted from List 1.\n");
+                printf("Enter the position: ");
+                scanf("%d", &pos);
+                deletenth(&head, pos);
                 break;
             case 5:
-                reverseList(&list1);
-                printf("List 1 reversed.\n");
+                printf("Enter data to add: ");
+                scanf("%d", &data);
+                addfirst(&head, data);
                 break;
             case 6:
-                printf("List 1: ");
-                printList(list1);
+                printf("Enter data to add: ");
+                scanf("%d", &data);
+                addlast(&head, data);
                 break;
             case 7:
-                printf("Enter data: ");
+                printf("Enter data to add: ");
                 scanf("%d", &data);
-                addToBeginning(&list2, data);
+                printf("Enter the position: ");
+                scanf("%d", &pos);
+                addnth(&head, data, pos);
                 break;
             case 8:
-                printf("Enter data: ");
-                scanf("%d", &data);
-                addToEnd(&list2, data);
+                // Merge Lists
                 break;
             case 9:
-                deleteFirstNode(&list2);
-                printf("First node deleted from List 2.\n");
+                reverse(&head);
                 break;
             case 10:
-                deleteLastNode(&list2);
-                printf("Last node deleted from List 2.\n");
+                display(head);
                 break;
             case 11:
-                reverseList(&list2);
-                printf("List 2 reversed.\n");
-                break;
-            case 12:
-                printf("List 2: ");
-                printList(list2);
-                break;
-            case 13:
-                concatenateList = concatenateLists(list1, list2);
-                printf("Lists merged.\n");
-                break;
-            case 14:
-                printf("Enter data: ");
-                scanf("%d", &data);
-                addToBeginning(&concatenateList, data);
-                break;
-            case 15:
-                printf("Enter data: ");
-                scanf("%d", &data);
-                addToEnd(&concatenateList, data);
-                break;
-            case 16:
-                deleteFirstNode(&concatenateList);
-                printf("First node deleted from Merged List.\n");
-                break;
-            case 17:
-                deleteLastNode(&concatenateList);
-                printf("Last node deleted from Merged List.\n");
-                break;
-            case 18:
-                reverseList(&concatenateList);
-                printf("Merged List reversed.\n");
-                break;
-            case 19:
-                printf("Merged List: ");
-                printList(concatenateList);
-                break;
-            case 20:
-                printf("Exiting...\n");
-                exit(0);
+                printf("Exit.\n");
+                return 0;
             default:
-                printf("Invalid choice. Please try again.\n");
+                printf("Invalid choice.\n");
         }
     }
-    
+
     return 0;
 }
-
